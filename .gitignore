@@ -4,6 +4,9 @@ api/obj/
 api/.vs/
 api/*.user
 
+# SQLite artifacts
+sqlite/*.db*
+
 # Frontend build artifacts
 front/node_modules/
 front/build/

@@ -1,3 +1,7 @@
+
+
+--- D R A F T  -----------------------------
+
 ## 🧾 Project Description
 
 ### 📦 **Auctions App**
@@ -122,4 +126,20 @@ VITE_API_URL=https://localhost:PORT
 
 Use the correct `PORT` from backend launch (Swagger URL).
 
+# Auctions App
 
+Fullstack проект с CI/CD:
+
+- ASP.NET Core API (.NET 8, SQLite)
+- React + Vite + TypeScript
+- Redux (будет)
+- CI/CD: GitHub + Render (backend), Netlify (frontend)
+
+## Deployment URLs
+
+- 🌐 Frontend: https://dazzling-squirrel-8410b1.netlify.app
+- 🛠 API: https://auctions-ajay.onrender.com/api/auctions
+
+
+
+--- D R A F T  -----------------------------
