@@ -8,6 +8,7 @@ interface IAuction{
 export const AuctionList =()=>{
     const [auctions, setAuctions] = useState<IAuction[]>([])
     const [loading, setLoading] = useState(true)
+    const [error, setError] = useState("")
 
     useEffect(()=>{
         const fetchAuctions = async () => {
@@ -17,8 +18,13 @@ export const AuctionList =()=>{
                 const data:IAuction[] = await response.json();
                 setAuctions(data);
 
-            } catch (error) {
-                console.error("Error fetching actions:",error)
+            } catch (err) {
+                console.error("Error fetching actions:",err)
+                if (err instanceof Error) {
+                    setError(err.message);
+                } else {
+                    setError(String(err));
+                }
             }
             finally {
                 setLoading(false)
@@ -29,6 +35,7 @@ export const AuctionList =()=>{
     },[])
 
     if (loading) {return <div>Loading....</div>}
+    if (error) {return <div>Error in loading: {error}</div>}
 
     return (
     <div>
