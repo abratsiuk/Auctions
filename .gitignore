@@ -1,0 +1,13 @@
+# Backend build artifacts
+api/bin/
+api/obj/
+api/.vs/
+api/*.user
+
+# Frontend build artifacts
+front/node_modules/
+front/build/
+
+# General
+*.log
+*.env
