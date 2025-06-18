@@ -20,6 +20,8 @@ namespace api
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddAutoMapper(typeof(Program));
 
+            builder.Services.AddCors();
+
 
             var app = builder.Build();
 
@@ -28,6 +30,11 @@ namespace api
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+
+                app.UseCors(policy =>
+                    policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader());
             }
 
             app.UseHttpsRedirection();
