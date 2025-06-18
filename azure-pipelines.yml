@@ -1,0 +1,31 @@
+trigger:
+    - master
+
+pool:
+    vmImage: 'windows-latest'
+
+variables:
+    buildConfiguration: 'Release'
+
+steps:
+    - task: UseDotNet@2
+      inputs:
+          packageType: 'sdk'
+          version: '8.x'
+          installationPath: $(Agent.ToolsDirectory)/dotnet
+
+    - script: dotnet build ./api/api.csproj --configuration $(buildConfiguration)
+      displayName: 'Build API'
+
+    - task: NodeTool@0
+      inputs:
+          versionSpec: '18.x'
+      displayName: 'Install Node.js'
+
+    - script: npm install
+      workingDirectory: ./front
+      displayName: 'Install Frontend Dependencies'
+
+    - script: npm run build
+      workingDirectory: ./front
+      displayName: 'Build Frontend'
