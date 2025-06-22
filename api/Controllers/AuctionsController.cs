@@ -30,70 +30,70 @@ namespace api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AuctionDto>>> GetAuctions()
         {
-            var actions =  await _context.Auctions.ToListAsync();
-            return Ok(_mapper.Map<IEnumerable<AuctionDto>>(actions));
+            var auctions =  await _context.Auctions
+                .AsNoTracking()
+                .Select(a=> new AuctionDto { Id=a.Id, Name=a.Name,AuctionDate=a.AuctionDate })
+                .ToListAsync();
+            return Ok(auctions);
         }
 
         // GET: api/Auctions/5
         [HttpGet("{id}")]
         public async Task<ActionResult<AuctionDto>> GetAuction(long id)
         {
-            var auction = await _context.Auctions.FindAsync(id);
+            var auction = await _context.Auctions
+                .AsNoTracking()
+                .Where(a => a.Id == id)
+                .Select(a => new AuctionDto { Id = a.Id, Name = a.Name, AuctionDate = a.AuctionDate })
+                .FirstOrDefaultAsync();
 
             if (auction == null)
             {
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<AuctionDto>(auction));
+            return Ok(auction);
         }
 
         // PUT: api/Auctions/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAuction(long id, AuctionDto dto)
+        public async Task<IActionResult> PutAuction(long id, AuctionDtoUpdate dto)
         {
             if (id != dto.Id)
             {
                 return BadRequest();
             }
 
-            var auction = await _context.Auctions.FindAsync(id);
-            if (auction == null)
+            var exists = await _context.Auctions.AnyAsync(a => a.Id == id);
+            if (!exists)
                 return NotFound();
 
-            _mapper.Map(dto, auction);
-
-            try
+            var updated = new Auction
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AuctionExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                Id = dto.Id,
+                Name = dto.Name,
+                AuctionDate = dto.AuctionDate
+            };
+            _context.Auctions.Update(updated);
 
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
         // POST: api/Auctions
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<AuctionDto>> CreateAuction(AuctionDto dto)
+        public async Task<ActionResult<AuctionDtoUpdate>> CreateAuction(AuctionDtoCreate dto)
         {
-            var auction = _mapper.Map<Auction>(dto);
+            var auction = new Auction
+            {
+                Name = dto.Name,
+                AuctionDate = dto.AuctionDate
+            };
 
             _context.Auctions.Add(auction);
             await _context.SaveChangesAsync();
 
-            var resultDto = _mapper.Map<AuctionDto>(auction);
+            var resultDto = new AuctionDto { Name = auction.Name, AuctionDate = auction.AuctionDate, Id = auction.Id };
 
             return CreatedAtAction(nameof(GetAuction), new { id = resultDto.Id }, resultDto);
         }
@@ -102,21 +102,26 @@ namespace api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAuction(long id)
         {
-            var auction = await _context.Auctions.FindAsync(id);
-            if (auction == null)
-            {
+
+            var exists = await _context.Auctions.AnyAsync(a => a.Id == id);
+            if (!exists)
                 return NotFound();
+
+            var hasDependencies = await _context.InitialOffers.AnyAsync(io => io.AuctionId == id) ||
+                await _context.TradeResults.AnyAsync(tr => tr.AuctionId == id) ||
+                await _context.TradeProcesses.AnyAsync(tp => tp.AuctionId == id);
+            if (hasDependencies) {
+                return Conflict(new
+                {
+                    message = "Auction cannot be deleted because it has related data (offers, results, or processes)."
+                });
             }
 
-            _context.Auctions.Remove(auction);
+            _context.Auctions.Remove(new Auction { Id=id});
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool AuctionExists(long id)
-        {
-            return _context.Auctions.Any(e => e.Id == id);
-        }
     }
 }

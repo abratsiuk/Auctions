@@ -8,7 +8,10 @@ namespace api.Mappings
     {
         public MappingProfile()
         {
-            CreateMap<AuctionDto, Auction>().ReverseMap();
+            //CreateMap<AuctionDtoUpdate, Auction>().ReverseMap();
+            //CreateMap<AuctionDtoUpdate, Auction>().ReverseMap();
+
+            //CreateMap<Auction, AuctionDto>().ReverseMap();
         }
     }
 }

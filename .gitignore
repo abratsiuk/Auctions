@@ -5,7 +5,7 @@ api/.vs/
 api/*.user
 
 # SQLite artifacts
-sqlite/*.db*
+api/sqlite/*.db*
 
 # Frontend build artifacts
 front/node_modules/
