@@ -10,9 +10,11 @@ using api.Models;
 using AutoMapper;
 using api.Models.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Authorization;
 
 namespace api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AuctionsController : ControllerBase
